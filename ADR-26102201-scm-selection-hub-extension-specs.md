@@ -8,7 +8,7 @@
 
 [Git Herder][product-intent-readme] задаёт **единую модель SCM-отбора** для массовых
 операций ([repository-selection][repository-selection]). Переносимое ядро критериев
-(`--qp`, `--qn`, `--qt`, `--qa`, `--scm-search`, `--limited-scope`) зафиксировано в
+(`--qp`, `--qn`, `--qt`, `--qa`, `--scm-search`, `--scope`) зафиксировано в
 платформенной спецификации SCM-отбора.
 
 В [capability отбора][repository-selection] допускаются **платформо-специфичные**
@@ -29,7 +29,7 @@
 
 | Слой | Назначение | Расположение (канон) |
 | ---- | ---------- | -------------------- |
-| **Hub** | Переносимые опции отбора; синтаксис CLI; резолв с профилем; композиция AND/OR для `--q*`; `scm-search` и `limited-scope`; пайплайн отбора; общие ошибки до старта; правила стыка с расширениями | `documentation/specifications/platform/scm-repository-selection.md` |
+| **Hub** | Переносимые опции отбора; синтаксис CLI; резолв с профилем; композиция AND/OR для `--q*`; `scm-search` и `scope`; пайплайн отбора; общие ошибки до старта; правила стыка с расширениями | `documentation/specifications/platform/scm-repository-selection.md` |
 | **Extension** | Таблица опций и семантика **только** для выбранного `upstream` (`github` / `gitlab`); те же имена ключей в YAML-профиле, что и длинные флаги CLI | `documentation/specifications/scm/<upstream>/repository-selection-extensions.md` |
 | **Enumeration** | Перечисление и обогащение карточки репозитория по HTTP; **без** таблиц CLI-флагов | `documentation/specifications/scm/<upstream>/repository-enumeration.md` |
 
@@ -44,8 +44,9 @@
    **ошибка до старта** (exit `1`), не предупреждение с игнорированием.
 5. Условия из extension после резолва участвуют в отборе с **AND** к переносимым
    `--q*` (если для конкретного флага в extension не оговорено иное).
-6. Флаг extension **может** считаться заданным критерием отбора для проверки «не пустой
-   набор критериев» в hub (наряду с `--q*` и `--scm-search`).
+6. Флаг extension **может** считаться критерием отбора для проверки «не пустой набор
+   критериев» в hub, если так помечено в extension-спеке; **модификаторы** pipeline
+   (например `include-inactive` на GitLab) критерием не считаются.
 
 Спеки команд (`cli/<command>/`) ссылаются на hub и при необходимости на extension по
 `upstream`; таблицы флагов не копируют.
