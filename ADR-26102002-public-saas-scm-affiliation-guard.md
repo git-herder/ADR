@@ -45,7 +45,8 @@
 ## Параметр `scope` на публичном SaaS {#scope-public-saas}
 
 Прикладной контракт значений `affiliated` \| `all` для `--scope` — в спецификации
-SCM-отбора (hub); маппинг на API конкретного `upstream` — в extension-спеках.
+SCM-отбора (hub); маппинг на API конкретного `upstream` — в
+`repository-selection-mapping` (файл `scope.md`) этого `upstream`.
 **Ниже — единые правила только для хостов `github.com` и `gitlab.com`** (hostname
 после резолва [профиля][profiles] **в точности**, как в решении выше). На других
 хостах этот раздел **не** применяется; guard из решения выше на них **не**
@@ -69,7 +70,7 @@ SCM-отбора (hub); маппинг на API конкретного `upstream
 `scope` к запросу в SCM **не** применяется (контракт hub).
 
 Реализация на REST (membership, involves и т.д.) **не** дублируется здесь — только
-в extension-спеках соответствующего `upstream`.
+в `repository-selection-mapping/scope.md` соответствующего `upstream`.
 
 ## Аргументация
 

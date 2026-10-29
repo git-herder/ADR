@@ -38,10 +38,14 @@ namespace** с шаблонами пользователя (включая ре�
 1. SCM-адаптер **перечисляет** репозитории, **доступные текущему пользователю** в
    контексте [профиля][profiles] и **выбранного scope перечисления** (с пагинацией до
    полноты набора в рамках этого scope).
-2. Адаптер возвращает **нормализованную** запись репозитория (идентификаторы, имя,
-   namespace, URL и прочие поля карточки — точный набор в прикладной спецификации).
+2. Адаптер возвращает **нормализованную** запись репозитория; схема полей карточки
+   для каждого `upstream` — SSOT в `scm/<upstream>/base-enumeration.md` (например
+   [GitHub][base-enumeration-github]).
 3. Git Herder **применяет критерии отбора локально** к полученному набору в процессе
-   CLI. **Не** строим общий слой трансляции «критерий → нативный search API SCM».
+   CLI. Per-SCM алгоритмы фильтрации по `--qp`, `--qn`, `--qt`, `--qa` — в
+   `scm/<upstream>/repository-enumeration/<parameter>.md` (реестр —
+   `repository-enumeration/index.md`). **Не** строим общий слой трансляции «критерий
+   → нативный search API SCM» для этих полей.
 
 Под «локально» имеется в виду **процесс Git Herder**, не браузер и не UI SCM.
 
@@ -51,9 +55,8 @@ namespace). Аналитические критерии (наличие ветк
 контур «один список → один проход фильтра»; для них могут понадобиться дополнительные
 вызовы API по каждому репозиторию — в прикладной спецификации.
 
-Фильтрация по **метаданным** (топики, теги, custom properties и т.п.) в этом ADR
-не детализируется; при появлении отдельного решения по ней оно должно согласовываться
-с принципом переносимой семантики отбора.
+Фильтрация по **метаданным** (`qt`, `qa`) согласована с hub: REST-дозагрузка —
+mapping; проверка на карточке — repository-enumeration per [ADR-26102201][adr-hub-layout].
 
 ## Аргументация
 
@@ -91,9 +94,12 @@ namespace). Аналитические критерии (наличие ветк
 - [SCM-платформа (термин)][scm-platform]
 - [Отказоустойчивое выполнение по сети][resilient-network]
 - [ADR-26101703: HTTP-клиент для SCM API][adr-http]
+- [ADR-26102201: раскладка hub / options / mapping / enumeration][adr-hub-layout]
 - [ADR-26102002: affiliation-scope на публичных SaaS][adr-saas-guard]
 
 <!-- LINKS -->
+[base-enumeration-github]: ../documentation/specifications/scm/github/base-enumeration.md
+[adr-hub-layout]: ADR-26102201-scm-selection-hub-extension-specs.md
 [product-intent-readme]: ../documentation/product-intent/README.md
 [repository-selection]: ../documentation/product-intent/capability/platform/repository-selection.md
 [profiles]: ../documentation/product-intent/capability/platform/profiles.md
