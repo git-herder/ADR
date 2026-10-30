@@ -47,6 +47,13 @@ namespace** с шаблонами пользователя (включая ре�
    `repository-enumeration/index.md`). **Не** строим общий слой трансляции «критерий
    → нативный search API SCM» для этих полей.
 
+**Исключение (`upstream=github`):** критерии `--qp` и `--qn` транслируются в query
+`q` базового `GET /search/repositories` ([mapping/index § сборка q][github-mapping-q]);
+локальная фильтрация `qp`/`qn` **не** выполняется — отдельных файлов в
+[repository-enumeration/][github-enum-index] для них нет. Семантика argv на GitHub —
+литералы Search, не регэкп hub ([base-enumeration § ограничения API][github-base-limits]). Осознанный trade-off:
+переносимость шаблонов GitLab/GitHub vs раннее сужение через GitHub Search API.
+
 Под «локально» имеется в виду **процесс Git Herder**, не браузер и не UI SCM.
 
 **Граница этого решения:** класс критериев «поля карточки репозитория» (имя,
@@ -107,3 +114,6 @@ mapping; проверка на карточке — repository-enumeration per [
 [resilient-network]: ../documentation/product-intent/capability/platform/resilient-network-execution.md
 [adr-http]: ADR-26101703-scm-http-client-wrapper.md
 [adr-saas-guard]: ADR-26102002-public-saas-scm-affiliation-guard.md
+[github-mapping-q]: ../documentation/specifications/scm/github/repository-selection-mapping/index.md#сборка-q
+[github-enum-index]: ../documentation/specifications/scm/github/repository-enumeration/index.md
+[github-base-limits]: ../documentation/specifications/scm/github/base-enumeration.md#ограничения-api

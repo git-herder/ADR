@@ -53,8 +53,10 @@ base-enumeration + mapping + enumeration**:
 4. **Маппинг на REST** — **только** `repository-selection-mapping/<parameter>.md`;
 
    `mapping/index.md` — реестр без тел справочников. Mapping ссылается на
-    **base-enumeration** для базового list/pagination. `qp` **/** `qn` **в mapping не
-    описываются**.
+    **base-enumeration** для базового list/pagination. По умолчанию `qp` **/** `qn` **в
+    mapping не описываются** (клиентская фильтрация — enumeration). **Исключение:**
+    GitHub — [mapping/qp.md и qn.md][github-mapping-qp-qn] и сборка `q` в
+    [mapping/index.md][github-mapping-index].
 5. **Клиентская фильтрация** — **только** `repository-enumeration/<parameter>.md`;
 
    `repository-enumeration/index.md` — реестр. Enumeration ссылается на
@@ -118,3 +120,7 @@ GitLab в P0; другие SCM — по той же схеме.
 - [SCM-отбор (hub)](../documentation/specifications/platform/scm-repository-selection.md)
 - [ADR-26102001: локальная оценка критериев SCM-отбора](ADR-26102001-scm-repository-selection-evaluation.md)
 - [Spec-first](../playbook/principles/spec-first.md)
+
+<!-- LINKS -->
+[github-mapping-index]: ../documentation/specifications/scm/github/repository-selection-mapping/index.md
+[github-mapping-qp-qn]: ../documentation/specifications/scm/github/repository-selection-mapping/qp.md
