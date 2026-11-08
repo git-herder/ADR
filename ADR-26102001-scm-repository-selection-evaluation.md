@@ -48,7 +48,7 @@ namespace** с шаблонами пользователя (включая ре�
    → нативный search API SCM» для этих полей.
 
 **Исключение (`upstream=github`):** критерии `--qp` и `--qn` транслируются в query
-`q` базового `GET /search/repositories` ([mapping/index § сборка q][github-mapping-q]);
+`q` базового `GET /search/repositories` ([listing/index § сборка q][github-listing-q]);
 локальная фильтрация `qp`/`qn` **не** выполняется — отдельных файлов в
 [repository-enumeration/][github-enum-index] для них нет. Семантика argv на GitHub —
 литералы Search, не регэкп hub ([base-enumeration § ограничения API][github-base-limits]). Осознанный trade-off:
@@ -114,6 +114,6 @@ mapping; проверка на карточке — repository-enumeration per [
 [resilient-network]: ../documentation/product-intent/capability/platform/resilient-network-execution.md
 [adr-http]: ADR-26101703-scm-http-client-wrapper.md
 [adr-saas-guard]: ADR-26102002-public-saas-scm-affiliation-guard.md
-[github-mapping-q]: ../documentation/specifications/scm/github/repository-selection-mapping/index.md#сборка-q
+[github-listing-q]: ../documentation/specifications/scm/github/repository-listing/index.md#сборка-q
 [github-enum-index]: ../documentation/specifications/scm/github/repository-enumeration/index.md
 [github-base-limits]: ../documentation/specifications/scm/github/base-enumeration.md#ограничения-api

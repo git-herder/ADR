@@ -1,4 +1,4 @@
-# ADR-26102201: Hub, options, mapping и enumeration для SCM-отбора
+# ADR-26102201: Hub, options, listing, enrichment и enumeration для SCM-отбора
 
 ## Статус
 
@@ -18,24 +18,27 @@
 валидация **до** старта команды.
 
 Первоначальная схема hub + extension + enumeration смешала в одном файле
-`repository-selection-extensions.md` CLI-контракт, продуктовый эффект и маппинг на
-REST (в том числе для переносимого `scope` из hub). Это нарушает разделение слоёв и
-[изменяемость документации](../glossary/terms/documentation-modifiability.md). Уточнение: слой
+`repository-selection-extensions.md` CLI-контракт, продуктовый эффект и HTTP list
+и дозагрузки. Позже слой **mapping** объединил server-side list и REST-enrich;
+[архитектура](../documentation/architecture/git-herder.archimate) (процесс
+`id-649305ae`) разделила **листинг** и **обогащение**. Уточнение: слой
 **Enumeration** — **клиентская фильтрация** выборки (один файл на опцию), не
 HTTP-транспорт. Базовый list, пагинация и схема карточки — `base-enumeration.md`;
-REST от CLI — **Mapping**.
+server-side list — **listing**; дозагрузки полей карточки — **enrichment**.
 
 ## Решение
 
 Документацию прикладного контракта SCM-отбора вести по схеме **hub + options +
-base-enumeration + mapping + enumeration**:
+base-enumeration + listing + enrichment + enumeration**; порядок фаз listing →
+enrichment → enumeration — [scm/index.md](../documentation/specifications/scm/index.md):
 
 | Слой                 | Назначение                                                                                                                                                         | Расположение (канон)                                                                                                      |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
 | **Hub**              | Переносимые опции; синтаксис CLI; резолв с профилем; композиция `--q`*; продуктовый эффект `scope` / `scm-search`; пайплайн; общие ошибки; правила стыка с options | `documentation/specifications/platform/scm-repository-selection.md`                                                       |
 | **Options**          | Таблица и семантика **только extension-флагов** для выбранного `upstream`; те же имена ключей в YAML, что и CLI; **без** REST                                      | `documentation/specifications/scm/<upstream>/repository-selection-options.md`                                             |
 | **Base enumeration** | Базовый list/search, пагинация, **схема карточки** (своя per SCM)                                                                                                  | `documentation/specifications/scm/<upstream>/base-enumeration.md`                                                         |
-| **Mapping**          | CLI-опция → эндпоинты, query/body, заголовки; комбинации на API; все, что связано с запросами в SCM.                                                               | `documentation/specifications/scm/<upstream>/repository-selection-mapping/index.md` и `…/mapping/<parameter>.md`          |
+| **Listing**          | CLI-опция → server-side list: эндпоинты, query/body, заголовки; без дозагрузок полей карточки                                                                    | `documentation/specifications/scm/<upstream>/repository-listing/index.md` и `…/listing/<parameter>.md`                    |
+| **Enrichment**       | HTTP-дозагрузки полей карточки после листинга (джобы обогащения)                                                                                                   | `documentation/specifications/scm/<upstream>/repository-enrichment/index.md` и `…/enrichment/<parameter>.md`              |
 | **Enumeration**      | Фильтрация **полученной** выборки на клиенте; один файл на опцию                                                                                                   | `documentation/specifications/scm/<upstream>/repository-enumeration/index.md` и `…/repository-enumeration/<parameter>.md` |
 
 Правила:
@@ -50,67 +53,71 @@ base-enumeration + mapping + enumeration**:
 
    (в т.ч. `scope`) и **не** повторяет алгоритм резолва из [profiles](../documentation/specifications/platform/profiles.md) —
     только ссылка на hub.
-4. **Маппинг на REST** — **только** `repository-selection-mapping/<parameter>.md`;
+4. **Server-side list** — **только** `repository-listing/<parameter>.md`;
 
-   `mapping/index.md` — реестр без тел справочников. Mapping ссылается на
+   `listing/index.md` — реестр без тел справочников. Listing ссылается на
     **base-enumeration** для базового list/pagination. По умолчанию `qp` **/** `qn` **в
-    mapping не описываются** (клиентская фильтрация — enumeration). **Исключение:**
-    GitHub — [mapping/qp.md и qn.md][github-mapping-qp-qn] и сборка `q` в
-    [mapping/index.md][github-mapping-index].
-5. **Клиентская фильтрация** — **только** `repository-enumeration/<parameter>.md`;
+    listing не описываются** (клиентская фильтрация — enumeration). **Исключение:**
+    GitHub — [listing/qp.md и qn.md][github-listing-qp-qn] и сборка `q` в
+    [listing/index.md][github-listing-index].
+5. **Обогащение** — **только** `repository-enrichment/<parameter>.md`; реестр —
+   `enrichment/index.md`. Дозагрузки **не** дублировать в listing.
+6. **Клиентская фильтрация** — **только** `repository-enumeration/<parameter>.md`;
 
    `repository-enumeration/index.md` — реестр. Enumeration ссылается на
     **base-enumeration** для полей карточки. Параметры, действующие только на API
     (`scope`, `scm-search`, …), **не** дублируются в enumeration.
-6. После резолва `upstream` флаг или ключ профиля из options **чужого** upstream —
+7. После резолва `upstream` флаг или ключ профиля из options **чужого** upstream —
 
    **ошибка до старта** (exit `1`).
-7. Условия из options после резолва участвуют в отборе с **AND** к переносимым
+8. Условия из options после резолва участвуют в отборе с **AND** к переносимым
 
    `--q*` (если для конкретного флага в options не оговорено иное).
-8. Extension-флаг **может** считаться критерием отбора для проверки «не пустой набор
+9. Extension-флаг **может** считаться критерием отбора для проверки «не пустой набор
 
    критериев» в hub, если так помечено в options; **модификаторы** pipeline (например
     `include-inactive` на GitLab) критерием не считаются.
 
 Спеки команд (`cli/<command>/`) ссылаются на hub и при необходимости на options,
-base-enumeration, mapping, enumeration по `upstream`; таблицы флагов не копируют.
+base-enumeration, listing, enrichment, enumeration по `upstream`; таблицы флагов не копируют.
 
 ## Аргументация
 
 | Альтернатива                                              | Почему не выбрана                                                                 |
 | --------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | Все флаги в одном `scm-repository-selection.md`           | Смешение переносимого и частного; рост файла; разный темп изменений GitHub/GitLab |
-| SCM-специфичные ключи только в одном monolith enumeration | Enumeration — клиентская фильтрация; argv — hub/options; REST — mapping           |
+| SCM-специфичные ключи только в одном monolith enumeration | Enumeration — клиентская фильтрация; argv — hub/options; REST — listing/enrichment |
 | Enumeration как HTTP-транспорт                            | Транспорт и карточка — base-enumeration; фильтры — repository-enumeration/*       |
 | CLI и REST в одном extension-файле                        | Смешение слоёв; hub `scope` оказывается «не в hub»; плохая изменяемость           |
-| Один monolith `mapping.md` на все параметры upstream      | Сложно сопровождать; правка одного флага трогает весь документ                    |
-| Только `--scm-opt key=value` без отдельных спек           | Allowlist всё равно нужен per upstream; options + mapping дают явный SSOT         |
+| Один monolith `listing.md` на все параметры upstream      | Сложно сопровождать; правка одного флага трогает весь документ                    |
+| Единый mapping (list + enrich)                           | Расходится с ArchiMate `id-649305ae`; смешивает RetryingQueue-фазы                |
+| Только `--scm-opt key=value` без отдельных спек           | Allowlist всё равно нужен per upstream; options + listing дают явный SSOT         |
 | Дублировать таблицы в каждой команде                      | Нарушение SSOT и [spec-first](../playbook/principles/spec-first.md)               |
 
 ## Последствия
 
 ### Позитивные
 
-- Пять границ: hub, options, base-enumeration, mapping (CLI→REST), enumeration
-(клиентская фильтрация).
-- Переносимое ядро остаётся одним документом; маппинг `scope` симметричен на GitHub и
+- Границы: hub, options, base-enumeration, listing, enrichment, enumeration,
+  оркестрация [scm/index.md](../documentation/specifications/scm/index.md).
+- Переносимое ядро остаётся одним документом; listing `scope` симметричен на GitHub и
 GitLab в отдельных файлах.
 - Новые upstream-флаги и новые query-параметры добавляются в свой файл без раздувания
 hub.
 
 ### Негативные
 
-- Опции, которые требуют и запросов в SCM, и отборов на клиенте, описываются в двух местах: mapping - часть про запросы, enumeration - часть про отборы.
-- Нужно поддерживать согласованность hub ↔ options ↔ mapping ↔ enumeration (реестры,
-SSOT map).
+- Опции, которые требуют и запросов в SCM, и отборов на клиенте, описываются в трёх
+местах: listing (server-side), enrichment (дозагрузка), enumeration (клиент).
+- Нужно поддерживать согласованность hub ↔ options ↔ listing ↔ enrichment ↔
+enumeration (реестры, SSOT map).
 - Больше файлов на один `upstream`.
 
 ### Компромиссы
 
 - Имена `base-enumeration.md`, `repository-selection-options.md`,
-`repository-selection-mapping/`, `repository-enumeration/` фиксированы для GitHub и
-GitLab в P0; другие SCM — по той же схеме.
+`repository-listing/`, `repository-enrichment/`, `repository-enumeration/`
+фиксированы для GitHub и GitLab в P0; другие SCM — по той же схеме.
 
 ## Ссылки
 
@@ -118,9 +125,10 @@ GitLab в P0; другие SCM — по той же схеме.
 - [Единый отбор для массовых операций](../documentation/product-intent/capability/platform/repository-selection.md)
 - [Именованные профили (capability)](../documentation/product-intent/capability/platform/profiles.md)
 - [SCM-отбор (hub)](../documentation/specifications/platform/scm-repository-selection.md)
+- [Загрузка из SCM и обогащение (spec)](../documentation/specifications/scm/index.md)
 - [ADR-26102001: локальная оценка критериев SCM-отбора](ADR-26102001-scm-repository-selection-evaluation.md)
 - [Spec-first](../playbook/principles/spec-first.md)
 
 <!-- LINKS -->
-[github-mapping-index]: ../documentation/specifications/scm/github/repository-selection-mapping/index.md
-[github-mapping-qp-qn]: ../documentation/specifications/scm/github/repository-selection-mapping/qp.md
+[github-listing-index]: ../documentation/specifications/scm/github/repository-listing/index.md
+[github-listing-qp-qn]: ../documentation/specifications/scm/github/repository-listing/qp.md
