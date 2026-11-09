@@ -21,7 +21,10 @@
 `repository-selection-extensions.md` CLI-контракт, продуктовый эффект и HTTP list
 и дозагрузки. Позже слой **mapping** объединил server-side list и REST-enrich;
 [архитектура](../documentation/architecture/git-herder.archimate) (процесс
-`id-649305ae`) разделила **листинг** и **обогащение**. Уточнение: слой
+`id-649305ae`) разделила **листинг** и **обогащение**; контур приложения — view
+**SCM Listing & Enrichment**
+([architecture/README.md](../documentation/architecture/README.md)).
+Уточнение: слой
 **Enumeration** — **клиентская фильтрация** выборки (один файл на опцию), не
 HTTP-транспорт. Базовый list, пагинация и схема карточки — `base-enumeration.md`;
 server-side list — **listing**; дозагрузки полей карточки — **enrichment**.

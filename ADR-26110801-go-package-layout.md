@@ -10,9 +10,11 @@
 `application/` появляется первый код. Целевая архитектура (ArchiMate) задаёт
 набор application components: Bootstrap, Invocation, ProfileStore, Logger,
 ConsoleUI, RepositoryCard, CommonScmSelection, ScmHttpTransport,
-ScmClientFactory со интерфейсами ScmListingBuilder и ScmEnrichmentBuilder,
-GithubScmListing, GithubScmEnrichment, GitlabScmListing, GitlabScmEnrichment,
-RetryingQueue, GitCliRunner, RepositoriesReportBuilder и обработчики команд.
+ScmClientFactory; интерфейсы ScmListingBuilder, ScmListing, ScmEnrichmentBuilder,
+ScmEnrich; platform-компоненты GithubScmListing, GithubScmEnrichment,
+GitlabScmListing, GitlabScmEnrichment; RetryingQueue, GitCliRunner,
+RepositoriesReportBuilder и обработчики команд. Навигация по view —
+[architecture/README.md](../documentation/architecture/README.md).
 
 [ADR-26101701][adr-stack] фиксирует стек (Go, модуль
 `github.com/Snowbridge/git-herder`) и **явно не задаёт** структуру каталогов.
@@ -67,7 +69,9 @@ application/
 │   │   │   └── selection.go       # CommonScmSelection: пайплайн отбора
 │   │   ├── http/
 │   │   │   └── transport.go       # ScmHttpTransport поверх net/http
-│   │   ├── factory.go             # ScmClientFactory и интерфейсы Builder'ов
+│   │   ├── listing.go             # ScmListing, ScmListingBuilder (Listing, ListingBuilder)
+│   │   ├── factory/
+│   │   │   └── factory.go         # ScmClientFactory
 │   │   ├── github/
 │   │   │   ├── listing.go         # GithubScmListing
 │   │   │   └── enrichment.go      # GithubScmEnrichment
@@ -94,7 +98,8 @@ application/
 | RepositoryCard | `internal/scm/card` |
 | CommonScmSelection | `internal/scm/selection` |
 | ScmHttpTransport | `internal/scm/http` |
-| ScmClientFactory, ScmListingBuilder, ScmEnrichmentBuilder | `internal/scm` |
+| ScmListing, ScmListingBuilder, ScmEnrichmentBuilder, ScmEnrich (интерфейсы) | `internal/scm` (`listing.go`, enrich — по мере реализации) |
+| ScmClientFactory | `internal/scm/factory` |
 | GithubScmListing, GithubScmEnrichment | `internal/scm/github` |
 | GitlabScmListing, GitlabScmEnrichment | `internal/scm/gitlab` |
 | GitCliRunner | `internal/gitexec` |
@@ -114,11 +119,12 @@ application/
 
 ### Смежные решения, зафиксированные вместе с компоновкой
 
-1. **SCM-адаптер.** ScmClientFactory по `upstream` возвращает **пару**
-   Builder'ов: ScmListingBuilder и ScmEnrichmentBuilder; пакеты
-   `internal/scm/github` и `internal/scm/gitlab` реализуют оба интерфейса.
-   Терминология спецификации команды `report` уточняется: «адаптер» — это пара
-   Builder'ов.
+1. **SCM-адаптер.** ScmClientFactory по `upstream` настраивает platform-Builder
+   и возвращает готовые клиенты **ScmListing** / **ScmEnrich** (`Build()`).
+   Builder'ы — внутренняя фаза сборки; шаги листинга и обогащения в пайплайне
+   вызывают runtime-интерфейсы, а не Builder (см. view **SCM Listing &
+   Enrichment** в [architecture/README.md](../documentation/architecture/README.md)).
+   Реализации Builder'ов и HTTP — в `internal/scm/github` и `internal/scm/gitlab`.
 2. **RepositoryCard.** Пакет `internal/scm/card`: тип `Card` (нормализованная
    запись по платформенной спецификации) и тип `Set` — хранилище массива
    карточек с CRUD-API и API фильтрации предикатами. Переносимая модель
