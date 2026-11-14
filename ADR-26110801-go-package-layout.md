@@ -78,8 +78,12 @@ application/
 │   │   └── gitlab/
 │   │       ├── listing.go         # GitlabScmListing
 │   │       └── enrichment.go      # GitlabScmEnrichment
-│   └── gitexec/
-│       └── runner.go              # GitCliRunner (первое использование — P1+)
+│   ├── gitexec/
+│   │   └── runner.go              # GitCliRunner (первое использование — P1+)
+│   └── workspace/
+│       ├── resolve.go             # GitWorkingCopiesResolver
+│       ├── walk.go                # обход каталога --workspace
+│       └── match.go               # сопоставление --qp и --qn
 ```
 
 ### Соответствие компонентов архитектуры пакетам
@@ -103,6 +107,7 @@ application/
 | GithubScmListing, GithubScmEnrichment | `internal/scm/github` |
 | GitlabScmListing, GitlabScmEnrichment | `internal/scm/gitlab` |
 | GitCliRunner | `internal/gitexec` |
+| GitWorkingCopiesResolver | `internal/workspace` |
 
 Эта таблица — канон трассировки «компонент → пакет». Имена пакетов не обязаны
 повторять имена компонентов; обязано сохраняться соответствие по этой таблице.
