@@ -70,14 +70,17 @@ application/
 │   │   ├── http/
 │   │   │   └── transport.go       # ScmHttpTransport поверх net/http
 │   │   ├── listing.go             # ScmListing, ScmListingBuilder (Listing, ListingBuilder)
+│   │   ├── creator.go             # ScmRepositoryCreator (Exists, Create)
 │   │   ├── factory/
-│   │   │   └── factory.go         # ScmClientFactory
+│   │   │   └── factory.go         # ScmClientFactory, ScmRepositoryManagementFabric
 │   │   ├── github/
 │   │   │   ├── listing.go         # GithubScmListing
-│   │   │   └── enrichment.go      # GithubScmEnrichment
+│   │   │   ├── enrichment.go      # GithubScmEnrichment
+│   │   │   └── management.go      # GithubRepositoryManagement
 │   │   └── gitlab/
 │   │       ├── listing.go         # GitlabScmListing
-│   │       └── enrichment.go      # GitlabScmEnrichment
+│   │       ├── enrichment.go      # GitlabScmEnrichment
+│   │       └── management.go      # GitlabRepositoryManagement
 │   ├── gitexec/
 │   │   └── runner.go              # GitCliRunner (первое использование — P1+)
 │   └── workspace/
@@ -104,8 +107,12 @@ application/
 | ScmHttpTransport | `internal/scm/http` |
 | ScmListing, ScmListingBuilder, ScmEnrichmentBuilder, ScmEnrich (интерфейсы) | `internal/scm` (`listing.go`, enrich — по мере реализации) |
 | ScmClientFactory | `internal/scm/factory` |
+| ScmRepositoryCreator | `internal/scm` (`creator.go`) |
+| ScmRepositoryManagementFabric | `internal/scm/factory` (`NewRepositoryCreator`) |
 | GithubScmListing, GithubScmEnrichment | `internal/scm/github` |
 | GitlabScmListing, GitlabScmEnrichment | `internal/scm/gitlab` |
+| GithubRepositoryManagement | `internal/scm/github` (`management.go`) |
+| GitlabRepositoryManagement | `internal/scm/gitlab` (`management.go`) |
 | GitCliRunner | `internal/gitexec` |
 | GitWorkingCopiesResolver | `internal/workspace` |
 
@@ -146,6 +153,10 @@ application/
    формирования отчёта: Report command вызывает его и через ConsoleUI выводит
    результат — TSV-строки на стандартный вывод либо путь к записанному
    JSON-файлу. Машиночитаемый вывод на stdout пишется мимо стилизации pterm.
+6. **Управление репозиториями.** ScmRepositoryManagementFabric по `upstream`
+   возвращает **RepositoryCreator** (`Exists` и `Create` разделены). Ветку
+   «если нет — создать» делает вызывающий. Реализации —
+   `internal/scm/github` и `internal/scm/gitlab` (`management.go`).
 
 ## Аргументация
 
