@@ -25,7 +25,7 @@ CLI и capability профилей.
 
 ## Решение
 
-Код Git Herder пишем на **Go**, модуль `github.com/Snowbridge/git-herder`.
+Код Git Herder пишем на **Go**, модуль `github.com/git-herder/git-herder`.
 Ниже — принятые пакеты и кто за что отвечает.
 
 ### Язык и версия Go
@@ -33,7 +33,7 @@ CLI и capability профилей.
 | Что | Значение |
 | --- | -------- |
 | Язык | Go |
-| Путь модуля | `github.com/Snowbridge/git-herder` |
+| Путь модуля | `github.com/git-herder/git-herder` |
 | Версии Go | Поддерживаем **два последних minor-релиза** официальной ветки Go |
 
 Когда выходит новый minor Go, команда поднимает минимальную поддерживаемую версию и

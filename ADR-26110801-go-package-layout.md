@@ -16,8 +16,8 @@ GitlabScmListing, GitlabScmEnrichment; RetryingQueue, GitCliRunner,
 RepositoriesReportBuilder и обработчики команд. Навигация по view —
 [architecture/README.md](../documentation/architecture/README.md).
 
-[ADR-26101701][adr-stack] фиксирует стек (Go, модуль
-`github.com/Snowbridge/git-herder`) и **явно не задаёт** структуру каталогов.
+[ADR-26101701][adr-stack] фиксирует стек (Go и путь модуля) и **явно не
+задаёт** структуру каталогов.
 Без принятого соглашения о компоновке каждый автор раскладывал бы код по-своему,
 и границы пакетов перестали бы совпадать с границами компонентов архитектуры.
 
@@ -32,7 +32,7 @@ RepositoriesReportBuilder и обработчики команд. Навигац
 
 ```text
 application/
-├── go.mod                         # module github.com/Snowbridge/git-herder
+├── go.mod                         # module github.com/git-herder/git-herder
 ├── cmd/
 │   └── githerd/
 │       └── main.go                # только вызов bootstrap.Run()
