@@ -32,8 +32,9 @@ server-side list — **listing**; дозагрузки полей карточк
 ## Решение
 
 Документацию прикладного контракта SCM-отбора вести по схеме **hub + options +
-base-enumeration + listing + enrichment + enumeration**; порядок фаз listing →
-enrichment → enumeration — [scm/index.md](../documentation/specifications/scm/index.md):
+base-enumeration + listing + enrichment + enumeration**. Порядок **исполнения**
+фаз набора (ранняя клиентская фильтрация → обогащение оставшихся → поздняя
+фильтрация) — [ADR-26112801][adr-early-filter], не этот ADR:
 
 | Слой                 | Назначение                                                                                                                                                         | Расположение (канон)                                                                                                      |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
@@ -130,8 +131,10 @@ enumeration (реестры, SSOT map).
 - [SCM-отбор (hub)](../documentation/specifications/platform/scm-repository-selection.md)
 - [Загрузка из SCM и обогащение (spec)](../documentation/specifications/scm/index.md)
 - [ADR-26102001: локальная оценка критериев SCM-отбора](ADR-26102001-scm-repository-selection-evaluation.md)
+- [ADR-26112801: ранняя клиентская фильтрация до обогащения][adr-early-filter]
 - [Spec-first](../playbook/principles/spec-first.md)
 
 <!-- LINKS -->
 [github-listing-index]: ../documentation/specifications/scm/github/repository-listing/index.md
 [github-listing-qp-qn]: ../documentation/specifications/scm/github/repository-listing/qp.md
+[adr-early-filter]: ADR-26112801-scm-filter-before-enrich.md
